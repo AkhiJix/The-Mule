@@ -144,5 +144,8 @@ dependencies {
     implementation(libs.androidx.fragment.ktx)
     debugImplementation(libs.androidx.fragment.testing)
 
+    //SwipeRefreshLayout
+    implementation (libs.androidx.swiperefreshlayout)
+
 }
 
