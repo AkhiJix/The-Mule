@@ -117,6 +117,7 @@ dependencies {
     implementation(libs.retrofit)
     //Gson
     implementation(libs.gson)
+    implementation (libs.converter.gson)
 
     //WorkManager
     implementation(libs.androidx.work.runtime.ktx)
