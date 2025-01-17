@@ -1,4 +1,7 @@
 package com.akhijix.themule.ui.search
 
-class SearchNewsFragment {
+import androidx.fragment.app.Fragment
+import com.akhijix.themule.R
+
+class SearchNewsFragment : Fragment(R.layout.fragment_search_news) {
 }

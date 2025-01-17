@@ -2,7 +2,8 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".ui.breaking.BreakingNewsFragment">
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/breaking_swipe_refresh"
@@ -22,22 +23,22 @@
                 android:id="@+id/breaking_error_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_above="@+id/breaking_btn_retry"
                 android:layout_centerInParent="true"
                 android:layout_margin="8dp"
                 android:gravity="center"
                 android:text="Error loading news, please retry"
                 android:visibility="gone"
-                tools:visibility="visible"
-                android:layout_above="@+id/breaking_btn_retry"/>
+                tools:visibility="visible" />
 
             <Button
                 android:id="@+id/breaking_btn_retry"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
                 android:text="Retry"
                 android:visibility="gone"
-                tools:visibility="visible"
-                android:layout_centerInParent="true"/>
+                tools:visibility="visible" />
         </RelativeLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
