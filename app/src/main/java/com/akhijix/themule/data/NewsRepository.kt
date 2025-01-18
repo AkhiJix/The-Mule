@@ -1,10 +1,12 @@
 package com.akhijix.themule.data
 
 import androidx.room.withTransaction
+import coil3.network.HttpException
 import com.akhijix.themule.network.NewsApi
 import com.akhijix.themule.utils.Resource
 import com.akhijix.themule.utils.networkBoundResource
 import kotlinx.coroutines.flow.Flow
+import okio.IOException
 import javax.inject.Inject
 
 class NewsRepository @Inject constructor(
@@ -27,7 +29,10 @@ class NewsRepository @Inject constructor(
 //    }
 
 
-    fun getBreakingNews(): Flow<Resource<List<NewsArticle>>> =
+    fun getBreakingNews(
+        onFetchSuccess: () -> Unit,
+        onFetchFailed: (Throwable) -> Unit
+    ): Flow<Resource<List<NewsArticle>>> =
         networkBoundResource(
             query = {
                 newsArticleDao.getAllBreakingNewsArticles()
@@ -56,6 +61,13 @@ class NewsRepository @Inject constructor(
                     newsArticleDao.insertArticles(breakingNewsArticles)
                     newsArticleDao.insertBreakingNews(breakingNews)
                 }
+            },
+            onFetchSuccess = onFetchSuccess,
+            onFetchFailed = { t ->
+                if( t !is HttpException && t !is IOException){
+                    throw t
+                }
+                onFetchFailed(t)
             }
         )
 }
