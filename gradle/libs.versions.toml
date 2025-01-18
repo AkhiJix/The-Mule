@@ -5,6 +5,7 @@ coilCompose = "3.0.4"
 constraintlayout = "2.2.0"
 datastorePreferences = "1.1.1"
 fragmentKtx = "1.8.5"
+glide = "4.16.0"
 gson = "2.10.1"
 hiltAndroid = "2.52"
 kotlin = "2.0.20"
@@ -59,6 +60,7 @@ androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilCompose" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }

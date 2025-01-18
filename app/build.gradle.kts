@@ -98,6 +98,8 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)            // if any errors -> remove the dependency causing the error, try importing all other dependencies, then at the end import the problem dependency.
 
+    //Glide
+    implementation (libs.glide)
 
     //ViewModel
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
