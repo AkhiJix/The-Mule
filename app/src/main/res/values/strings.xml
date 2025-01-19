@@ -2,4 +2,6 @@
     <string name="app_name">The Mule</string>
     <string name="could_not_refresh">Could not refresh: %s</string>
     <string name="unknown_error_occurred">An unknown error occurred</string>
+    <string name="could_not_load_search_results">Could not load search results: %s</string>
+
 </resources>
