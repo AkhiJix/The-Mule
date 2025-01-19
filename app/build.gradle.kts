@@ -87,6 +87,8 @@ dependencies {
     kapt(libs.androidx.room.compiler)
     //Paging3
     implementation(libs.androidx.room.paging)
+    implementation(libs.androidx.paging.runtime.ktx)
+
     //Jetpack Datastore / SharedPrefs
     implementation(libs.androidx.datastore.preferences)
 
