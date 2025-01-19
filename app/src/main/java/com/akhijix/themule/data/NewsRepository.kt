@@ -1,5 +1,9 @@
 package com.akhijix.themule.data
 
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import java.util.concurrent.TimeUnit
 import androidx.room.withTransaction
 import coil3.network.HttpException
@@ -10,6 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import okio.IOException
 import javax.inject.Inject
+import com.akhijix.themule.data.SearchNewsRemoteMediator
 
 class NewsRepository @Inject constructor(
     private val newsApi: NewsApi,
@@ -81,6 +86,14 @@ class NewsRepository @Inject constructor(
                 onFetchFailed(t)
             }
         )
+
+    @OptIn(ExperimentalPagingApi::class)
+    fun getSearchResultsPaged(query : String) : Flow<PagingData<NewsArticle>> =
+        Pager(
+            config = PagingConfig(pageSize = 20, maxSize = 200),
+            remoteMediator = SearchNewsRemoteMediator(query, newsApi, newsArticleDatabase),
+            pagingSourceFactory = { newsArticleDao.getSearchResultArticlesPaged(query)}
+        ).flow
 
     fun getAllBookmarkedArticles() : Flow<List<NewsArticle>> =
         newsArticleDao.getAllBookmarkedArticles()

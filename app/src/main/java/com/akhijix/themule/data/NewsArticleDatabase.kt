@@ -8,10 +8,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Provider
 
-@Database(entities = [NewsArticle::class, BreakingNews::class, SearchResult::class], version = 1)
+@Database(
+    entities = [NewsArticle::class, BreakingNews::class, SearchResult::class, SearchQueryRemoteKey::class],
+    version = 1
+)
 abstract class NewsArticleDatabase : RoomDatabase() {
 
     abstract fun newsArticleDao(): NewsArticleDao
 
-    abstract fun searchQueryRemoteKeyDao() : SearchQueryRemoteKey
+    abstract fun searchQueryRemoteKeyDao(): SearchQueryRemoteKeyDao
 }

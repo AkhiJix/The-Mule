@@ -13,7 +13,7 @@ import kotlinx.coroutines.SupervisorJob
 
 @Module
 @InstallIn(SingletonComponent::class)
-object AppModule {
+object StorageModule{
 
     @Provides
     @Singleton

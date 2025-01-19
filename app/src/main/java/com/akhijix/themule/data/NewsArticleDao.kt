@@ -1,5 +1,6 @@
 package com.akhijix.themule.data
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -13,6 +14,9 @@ interface NewsArticleDao {
 
     @Query("SELECT * FROM breaking_news_table INNER JOIN news_article_table ON articleUrl = url ")
     fun getAllBreakingNewsArticles(): Flow<List<NewsArticle>>
+
+    @Query("SELECT * FROM search_results_table INNER JOIN news_article_table ON articleUrl = url WHERE searchQuery = :query ORDER BY queryPosition ")
+    fun getSearchResultArticlesPaged(query: String) : PagingSource<Int, NewsArticle>
 
     @Query("SELECT * FROM news_article_table WHERE isBookmarked = 1")
     fun getAllBookmarkedArticles() : Flow<List<NewsArticle>>
@@ -36,7 +40,7 @@ interface NewsArticleDao {
     suspend fun resetAllBookmarks()
 
     @Query("DELETE FROM search_results_table WHERE searchQuery = :query")
-    suspend fun deleteSearchResultsFroQuery(query: String)
+    suspend fun deleteSearchResultsForQuery(query: String)
 
     @Query("DELETE FROM breaking_news_table")
     suspend fun deleteAllBreakingNews()

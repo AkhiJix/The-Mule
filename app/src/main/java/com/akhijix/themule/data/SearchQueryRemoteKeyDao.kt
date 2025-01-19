@@ -7,9 +7,10 @@ import androidx.room.Query
 
 @Dao
 interface SearchQueryRemoteKeyDao {
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRemoteKey(remoteKey: SearchQueryRemoteKey)
 
     @Query("SELECT * FROM search_query_remote_keys_table WHERE searchQuery = :searchQuery")
-    suspend fun getRemoteKey(searchQuery: String) : SearchQueryRemoteKey
+    suspend fun getRemoteKey(searchQuery: String): SearchQueryRemoteKey
 }
