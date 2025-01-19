@@ -1,5 +1,6 @@
 package com.akhijix.themule.ui.breaking
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -7,6 +8,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -14,6 +16,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.akhijix.themule.R
 import com.akhijix.themule.data.NewsArticle
 import com.akhijix.themule.databinding.FragmentBreakingNewsBinding
@@ -39,12 +42,18 @@ class BreakingNewsFragment : Fragment(R.layout.fragment_breaking_news) {
             onItemClick = { article ->
                 val uri = Uri.parse(article.url)
                 val intent = Intent(Intent.ACTION_VIEW,uri)
-                requireActivity().startActivity(intent)
+                try{ requireActivity().startActivity(intent) }
+                catch (exception : ActivityNotFoundException){
+                    Toast.makeText(context,"No Browser Installed!",Toast.LENGTH_SHORT).show()
+                }
             },
             onBookmarkClick = {article ->
                 viewModel.onBookmarkClick(article)
             }
         )
+
+        newsArticleAdapter.stateRestorationPolicy =
+            RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
 
         binding.apply {
             breakingRecycler.apply {

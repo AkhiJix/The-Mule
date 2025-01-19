@@ -39,7 +39,9 @@ class NewsRepository @Inject constructor(
 
                 val bookmarkedArticles = newsArticleDao.getAllBookmarkedArticles().first()
                 val breakingNewsArticles =
-                    serverBreakingNewsArticles.map { serverBreakingNewsArticle ->
+                    serverBreakingNewsArticles
+                        .filter { serverBreakingNewsArticle -> serverBreakingNewsArticle.url != "https://removed.com"}
+                        .map { serverBreakingNewsArticle ->
                         val isBookmarked = bookmarkedArticles.any { bookmarkedArticle ->
                             bookmarkedArticle.url == serverBreakingNewsArticle.url
                         }
@@ -72,7 +74,7 @@ class NewsRepository @Inject constructor(
                     val needsRefresh =
                         oldestTimeStamp == null ||
                                 oldestTimeStamp < System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(
-                            5
+                            60
                         )
                     needsRefresh
                 }
@@ -88,10 +90,10 @@ class NewsRepository @Inject constructor(
         )
 
     @OptIn(ExperimentalPagingApi::class)
-    fun getSearchResultsPaged(query : String) : Flow<PagingData<NewsArticle>> =
+    fun getSearchResultsPaged(query : String, refreshOnInit : Boolean) : Flow<PagingData<NewsArticle>> =
         Pager(
             config = PagingConfig(pageSize = 20, maxSize = 200),
-            remoteMediator = SearchNewsRemoteMediator(query, newsApi, newsArticleDatabase),
+            remoteMediator = SearchNewsRemoteMediator(query, newsApi, newsArticleDatabase, refreshOnInit),
             pagingSourceFactory = { newsArticleDao.getSearchResultArticlesPaged(query)}
         ).flow
 

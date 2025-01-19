@@ -1,5 +1,6 @@
 package com.akhijix.themule.ui.search
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -7,6 +8,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isEmpty
 import androidx.core.view.isVisible
@@ -22,9 +24,14 @@ import com.akhijix.themule.R
 import com.akhijix.themule.databinding.FragmentSearchNewsBinding
 import com.akhijix.themule.utils.exhaustive
 import com.akhijix.themule.utils.onQueryTextSubmit
+import com.akhijix.themule.utils.showIfOrInvisible
+import com.akhijix.themule.utils.showSnackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -41,7 +48,10 @@ class SearchNewsFragment : Fragment(R.layout.fragment_search_news) {
             onItemClick = { article ->
                 val uri = Uri.parse(article.url)
                 val intent = Intent(Intent.ACTION_VIEW, uri)
-                requireActivity().startActivity(intent)
+                try{ requireActivity().startActivity(intent) }
+                catch (exception : ActivityNotFoundException){
+                    Toast.makeText(context,"No Browser Installed!", Toast.LENGTH_SHORT).show()
+                }
             },
             onBookmarkClick = { article ->
                 viewModel.onBookmarkClick(article)
@@ -61,14 +71,41 @@ class SearchNewsFragment : Fragment(R.layout.fragment_search_news) {
             viewLifecycleOwner.lifecycleScope.launch {
                 viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                     viewModel.searchResults.collectLatest { data ->
-                        seachTextInstructions.isVisible = false
-                        searchSwipeRefresh.isEnabled = true
                         newsArticleAdapter.submitData(data)
                     }
                 }
             }
 
-            searchSwipeRefresh.isEnabled = false
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    viewModel.hasCurrentQuery.collect { hasCurrentQuery ->
+                        searchTextInstructions.isVisible = !hasCurrentQuery
+                        searchSwipeRefresh.isEnabled = hasCurrentQuery
+
+                        if (!hasCurrentQuery) {
+                            searchRecycler.isVisible = false
+                        }
+                    }
+                }
+            }
+
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    newsArticleAdapter.loadStateFlow
+                        .distinctUntilChangedBy { it.source.refresh }
+                        .filter { it.source.refresh is LoadState.NotLoading }
+                        .collect {
+                            if (viewModel.pendingScrollToTopAfterNewQuery) {
+                                searchRecycler.scrollToPosition(0)
+                                viewModel.pendingScrollToTopAfterNewQuery = false
+                            }
+                            if (viewModel.pendingScrollToTopAfterRefresh && it.mediator?.refresh is LoadState.NotLoading) {
+                                searchRecycler.scrollToPosition(0)
+                                viewModel.pendingScrollToTopAfterRefresh = false
+                            }
+                        }
+                }
+            }
 
             viewLifecycleOwner.lifecycleScope.launch {
                 viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -79,8 +116,13 @@ class SearchNewsFragment : Fragment(R.layout.fragment_search_news) {
                                     searchErrorText.isVisible = false
                                     searchBtnRetry.isVisible = false
                                     searchSwipeRefresh.isRefreshing = true
-                                    seachTextNoResults.isVisible = false
-                                    searchRecycler.isVisible = newsArticleAdapter.itemCount > 0
+                                    searchTextNoResults.isVisible = false
+                                    searchRecycler.showIfOrInvisible {
+                                        !viewModel.newQueryInProgress && newsArticleAdapter.itemCount > 0
+                                    }
+
+                                    viewModel.refreshInProgress = true
+                                    viewModel.pendingScrollToTopAfterRefresh = true
                                 }
 
                                 is LoadState.NotLoading -> {
@@ -91,12 +133,14 @@ class SearchNewsFragment : Fragment(R.layout.fragment_search_news) {
 
                                     val noResults =
                                         newsArticleAdapter.itemCount < 1 && loadState.append.endOfPaginationReached && loadState.source.append.endOfPaginationReached
-                                    seachTextNoResults.isVisible = noResults
+                                    searchTextNoResults.isVisible = noResults
+                                    viewModel.refreshInProgress = false
+                                    viewModel.newQueryInProgress = false
                                 }
 
                                 is LoadState.Error -> {
                                     searchSwipeRefresh.isRefreshing = false
-                                    seachTextNoResults.isVisible = false
+                                    searchTextNoResults.isVisible = false
                                     searchRecycler.isVisible = newsArticleAdapter.itemCount > 0
 
                                     val noCachedResults =
@@ -111,6 +155,12 @@ class SearchNewsFragment : Fragment(R.layout.fragment_search_news) {
                                             ?: getString(R.string.unknown_error_occurred)
                                     )
                                     searchErrorText.text = errorMessage
+                                    if (viewModel.refreshInProgress) {
+                                        showSnackbar(errorMessage)
+                                    }
+                                    viewModel.refreshInProgress = false
+                                    viewModel.newQueryInProgress = false
+                                    viewModel.pendingScrollToTopAfterRefresh = false
                                 }
 
                                 else -> return@collect //?

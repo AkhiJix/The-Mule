@@ -11,13 +11,22 @@ fun Fragment.showSnackbar(
     duration: Int = Snackbar.LENGTH_LONG,
     view: View = requireView()
 ) {
-    Snackbar.make(view,message,duration).show()
+    Snackbar.make(view, message, duration).show()
+}
+
+inline fun <T : View> T.showIfOrInvisible(condition: (T) -> Boolean) {
+    if (condition(this)) {
+        this.visibility = View.VISIBLE
+    } else {
+
+        this.visibility = View.INVISIBLE
+    }
 }
 
 inline fun SearchView.onQueryTextSubmit(crossinline listener: (String) -> Unit) {
     this.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
         override fun onQueryTextSubmit(query: String?): Boolean {
-            if(!query.isNullOrBlank()){
+            if (!query.isNullOrBlank()) {
                 listener(query)
             }
             return true
@@ -29,5 +38,5 @@ inline fun SearchView.onQueryTextSubmit(crossinline listener: (String) -> Unit) 
     })
 }
 
-val <T> T.exhaustive : T
+val <T> T.exhaustive: T
     get() = this

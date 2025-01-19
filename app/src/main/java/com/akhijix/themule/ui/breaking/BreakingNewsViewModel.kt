@@ -7,9 +7,11 @@ import com.akhijix.themule.data.NewsRepository
 import com.akhijix.themule.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.sql.Ref
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
